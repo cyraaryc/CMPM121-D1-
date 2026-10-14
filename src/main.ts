@@ -15,6 +15,10 @@ counterText.style.fontSize = "30px";
 counterText.style.fontWeight = "bold";
 
 let counterVariable = 0;
+
+//audio
+const diceAudio1 = new Audio("/assets/dice-throw-1.ogg");
+
 // creates diceButton for step 1
 const diceButton = document.createElement("diceButton");
 diceButton.textContent = "🎲";
@@ -23,6 +27,7 @@ diceButton.style.fontSize = "100px";
 diceButton.style.padding = "0px";
 diceButton.style.background = "none";
 diceButton.onclick = () => {
+  diceAudio1.play();
   rollDice();
 };
 // rolls dice, called in the main button and for the dice rollers
@@ -81,4 +86,12 @@ timerButton.onclick = () => {
 };
 
 // adds all the elements here
-app.append(heading, diceButton, counterText, addDice, timerButton, diceText);
+app.append(
+  heading,
+  diceButton,
+  diceAudio1,
+  counterText,
+  addDice,
+  timerButton,
+  diceText,
+);
