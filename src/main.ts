@@ -6,39 +6,79 @@ const app = document.querySelector<HTMLElement>("#app")!;
 
 // header to remove/change
 const heading = document.createElement("h1");
-heading.textContent = "D1 project";
+heading.textContent = "Dice Roller";
 
 // creates counter for step 2
 const counterText = document.createElement("p");
-counterText.textContent = "0";
-let counterVariable = 0;
+counterText.textContent = "Points: 0";
+counterText.style.fontSize = "30px";
+counterText.style.fontWeight = "bold";
 
-// creates dicediceButton for step 1
+let counterVariable = 0;
+// creates diceButton for step 1
 const diceButton = document.createElement("diceButton");
 diceButton.textContent = "🎲";
 diceButton.style.cursor = "pointer";
 diceButton.style.fontSize = "100px";
 diceButton.style.padding = "0px";
-diceButton.style.border = "none";
 diceButton.style.background = "none";
 diceButton.onclick = () => {
-  counterVariable++;
-  counterText.textContent = "" + counterVariable;
+  rollDice();
 };
-// timer with a button that adds points for steps 3 + 4 + 5
-const timerButton = document.createElement("timerButton");
+// rolls dice, called in the main button and for the dice rollers
+function rollDice() {
+  let total = 0;
+  for (const die of diceText.children) {
+    const diceIndex = Math.floor(Math.random() * diceFaces.length);
+    die.textContent = diceFaces[diceIndex];
+    total += diceIndex + 1;
+  }
+  counterVariable += total;
+  counterText.textContent = "Points: " + counterVariable;
+}
+// Vreates diceText element where we appened dice with dice () rendered with dice faces from die
+const diceFaces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+const diceText = document.createElement("span");
+function dice() {
+  const die = document.createElement("span");
+  die.textContent = diceFaces[Math.floor(Math.random() * diceFaces.length)];
+  die.style.fontSize = "150px";
+  return die;
+}
+let addDicecost = 0;
+const addDice = document.createElement("span");
+addDice.textContent = "add dice : " + addDicecost;
+addDice.style.cursor = "pointer";
+addDice.style.fontSize = "30px";
+addDice.style.padding = "0px";
+addDice.style.background = "none";
+addDice.onclick = () => {
+  if (counterVariable >= addDicecost) {
+    counterVariable = counterVariable - addDicecost;
+    counterText.textContent = "Points: " + counterVariable;
+    addDicecost = (addDicecost + 10) * 20;
+    addDice.textContent = "add dice : " + addDicecost;
+    diceText.append(dice());
+  }
+};
+
+// timer with a button that adds points for steps 3 + 4 + 5 and scales cost for 6
+let addRollercost = 0;
+const timerButton = document.createElement("div");
 timerButton.style.cursor = "pointer";
-let boolFortimerButton = 0;
-timerButton.textContent = "⏱️ : click to increase points on 1 second delay";
+timerButton.textContent = "add dice roller : " + addRollercost;
+timerButton.style.fontSize = "30px";
 timerButton.onclick = () => {
-  if (boolFortimerButton == 0) {
+  if (counterVariable >= addRollercost) {
+    counterVariable -= addRollercost;
+    counterText.textContent = "Points: " + counterVariable;
+    addRollercost = 10 + addRollercost * addRollercost;
+    timerButton.textContent = "add dice roller : " + addRollercost;
     const _pointTimer = setInterval(() => {
-      counterVariable++;
-      counterText.textContent = "" + counterVariable;
+      rollDice();
     }, 1000);
-    boolFortimerButton = 1;
   }
 };
 
 // adds all the elements here
-app.append(heading, diceButton, counterText, timerButton);
+app.append(heading, diceButton, counterText, addDice, timerButton, diceText);
