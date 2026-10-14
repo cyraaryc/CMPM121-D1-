@@ -153,3 +153,34 @@ function gameLoop(now: number) {
   requestAnimationFrame(gameLoop);
 }
 requestAnimationFrame(gameLoop);
+
+// dice casino theme so everything fits one idea for step 8
+document.title = "Dice Roller Casino";
+document.body.style.margin = "0";
+document.body.style.minHeight = "100vh";
+document.body.style.background =
+  "radial-gradient(circle at top, #1f6b4a, #0d3324 75%)";
+document.body.style.color = "#fff2ce";
+document.body.style.fontFamily = "system-ui, sans-serif";
+app.style.textAlign = "center";
+app.style.padding = "24px 16px";
+counterText.style.color = "#f2c14e";
+diceText.style.display = "block";
+
+const logo = document.createElement("img");
+logo.src = logoUrl;
+logo.alt = "";
+logo.style.width = "72px";
+heading.before(logo);
+
+const subtitle = document.createElement("p");
+subtitle.textContent =
+  "Roll the dice for points, then hire rollers and open tables so the house keeps rolling while you watch.";
+subtitle.style.color = "#c9e4d6";
+heading.after(subtitle);
+
+// makes the original add dice / roller elements look like the shop buttons
+for (const shopButton of [addDice, timerButton]) {
+  shopButton.style.display = "block";
+  shopButton.style.margin = "6px auto";
+}
