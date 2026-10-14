@@ -10,5 +10,7 @@ export default {
     target: "esnext",
     outDir: "dist",
     sourcemap: true,
+    // keep imported assets as real files so they load from the deployed URL
+    assetsInlineLimit: 0,
   },
 };
