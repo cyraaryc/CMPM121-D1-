@@ -1,6 +1,11 @@
+import { createShop } from "./shop.ts";
+
 // Vite turns this import into a production-safe URL. Keep it as a file so
 // even this tiny example demonstrates a separately deployed asset.
 // @deno-types="./asset-url.d.ts"
+// shared upgrade shop
+
+import logoUrl from "./assets/tile.svg";
 
 const app = document.querySelector<HTMLElement>("#app")!;
 
@@ -82,3 +87,69 @@ timerButton.onclick = () => {
 
 // adds all the elements here
 app.append(heading, diceButton, counterText, addDice, timerButton, diceText);
+
+// feedback for purchases for step 6
+// tells you what just happened when you buy something
+const messageText = document.createElement("p");
+messageText.style.minHeight = "1.5em";
+counterText.after(messageText);
+
+// shows what you own and your income so status matches your choices for step 6
+// shows rollers and income rate under the points
+const statsText = document.createElement("p");
+counterText.after(statsText);
+
+// counts rollers by noticing when the roller cost goes up after a click
+let rollerCount = 0;
+let lastRollerCost = addRollercost;
+timerButton.addEventListener("click", () => {
+  if (addRollercost !== lastRollerCost) {
+    rollerCount++;
+    lastRollerCost = addRollercost;
+  }
+});
+
+// shows you can't buy something you can't afford for step 5
+// the original add dice / roller buttons can't be disabled (they aren't
+// button tags), so fade them when you can't afford them instead
+function showAffordable(element: HTMLElement, cost: number) {
+  const canBuy = counterVariable >= cost;
+  element.style.opacity = canBuy ? "1" : "0.5";
+  element.style.cursor = canBuy ? "pointer" : "not-allowed";
+}
+
+// creates the shop from shared code and data for step 9
+// the shop changes points through these, so it never touches the DOM above
+const extraShop = createShop({
+  get: () => counterVariable,
+  spend: (amount) => {
+    counterVariable -= amount;
+  },
+  earn: (amount) => {
+    counterVariable += amount;
+  },
+}, (text) => {
+  messageText.textContent = text;
+});
+app.append(extraShop.element);
+
+// game loop using elapsed seconds so upgrades earn over time for steps 3 + 4
+// one loop that adds income by the real seconds passed, not by frames
+let lastFrameTime = performance.now();
+function gameLoop(now: number) {
+  // clamp so the first frame can never subtract points
+  const elapsedSeconds = Math.max(0, (now - lastFrameTime) / 1000);
+  lastFrameTime = now;
+  extraShop.advance(elapsedSeconds);
+  counterText.textContent = "Points: " + Math.floor(counterVariable);
+  extraShop.update();
+  // rollers roll every die once a second, a die averages 3.5
+  const rollerRate = rollerCount * diceText.children.length * 3.5;
+  statsText.textContent = "Dice: " + diceText.children.length +
+    " | Rollers: " + rollerCount + " | about " +
+    (rollerRate + extraShop.pointsPerSecond()) + " points/sec";
+  showAffordable(addDice, addDicecost);
+  showAffordable(timerButton, addRollercost);
+  requestAnimationFrame(gameLoop);
+}
+requestAnimationFrame(gameLoop);
